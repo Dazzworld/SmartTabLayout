@@ -69,6 +69,7 @@ class SmartTabStrip extends LinearLayout {
   private final int indicatorWidth;
   private final int indicatorGravity;
   private final float indicatorCornerRadius;
+  private final int indicatorOffset;
   private final Paint indicatorPaint;
   private final int dividerThickness;
   private final Paint dividerPaint;
@@ -102,6 +103,7 @@ class SmartTabStrip extends LinearLayout {
     int indicatorThickness = (int) (SELECTED_INDICATOR_THICKNESS_DIPS * density);
     int indicatorWidth = AUTO_WIDTH;
     float indicatorCornerRadius = DEFAULT_INDICATOR_CORNER_RADIUS * density;
+    int indicatorOffset = 0;
     int overlineColor = setColorAlpha(themeForegroundColor, DEFAULT_TOP_BORDER_COLOR_ALPHA);
     int overlineThickness = (int) (DEFAULT_TOP_BORDER_THICKNESS_DIPS * density);
     int underlineColor = setColorAlpha(themeForegroundColor, DEFAULT_BOTTOM_BORDER_COLOR_ALPHA);
@@ -132,6 +134,8 @@ class SmartTabStrip extends LinearLayout {
         R.styleable.stl_SmartTabLayout_stl_indicatorWidth, indicatorWidth);
     indicatorCornerRadius = a.getDimension(
         R.styleable.stl_SmartTabLayout_stl_indicatorCornerRadius, indicatorCornerRadius);
+    indicatorOffset = a.getDimensionPixelSize(
+            R.styleable.stl_SmartTabLayout_stl_indicatorOffset, indicatorOffset);
     overlineColor = a.getColor(
         R.styleable.stl_SmartTabLayout_stl_overlineColor, overlineColor);
     overlineThickness = a.getDimensionPixelSize(
@@ -175,6 +179,7 @@ class SmartTabStrip extends LinearLayout {
     this.indicatorWidth = indicatorWidth;
     this.indicatorPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     this.indicatorCornerRadius = indicatorCornerRadius;
+    this.indicatorOffset = indicatorOffset;
     this.indicatorGravity = indicatorGravity;
 
     this.dividerHeight = DEFAULT_DIVIDER_HEIGHT;
@@ -368,8 +373,8 @@ class SmartTabStrip extends LinearLayout {
     switch (indicatorGravity) {
       case GRAVITY_TOP:
         center = indicatorThickness / 2f;
-        top = center - (thickness / 2f);
-        bottom = center + (thickness / 2f);
+        top = center - (thickness / 2f) + indicatorOffset;
+        bottom = center + (thickness / 2f) + indicatorOffset;
         break;
       case GRAVITY_CENTER:
         center = height / 2f;
@@ -379,8 +384,8 @@ class SmartTabStrip extends LinearLayout {
       case GRAVITY_BOTTOM:
       default:
         center = height - (indicatorThickness / 2f);
-        top = center - (thickness / 2f);
-        bottom = center + (thickness / 2f);
+        top = center - (thickness / 2f) - indicatorOffset;
+        bottom = center + (thickness / 2f)  - indicatorOffset;
     }
 
     indicatorPaint.setColor(color);
