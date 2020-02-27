@@ -34,6 +34,7 @@
     <attr name="stl_defaultTabTextSize" format="dimension"/>
     <attr name="stl_defaultTabTextHorizontalPadding" format="dimension"/>
     <attr name="stl_defaultTabTextMinWidth" format="dimension"/>
+    <attr name="stl_selectTabTextSize" format="dimension"/>
     <attr name="stl_customTabTextLayoutId" format="reference"/>
     <attr name="stl_customTabTextViewId" format="reference"/>
     <attr name="stl_distributeEvenly" format="boolean"/>
@@ -42,5 +43,7 @@
       <enum name="auto_center" value="-1"/>
     </attr>
     <attr name="stl_drawDecorationAfterTab" format="boolean"/>
+    <attr name="stl_textSizeTransformer" format="boolean"/>
+    <attr name="stl_textColorTransformer" format="boolean"/>
   </declare-styleable>
 </resources>

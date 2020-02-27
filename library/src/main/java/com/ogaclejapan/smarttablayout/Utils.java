@@ -16,11 +16,14 @@
  */
 package com.ogaclejapan.smarttablayout;
 
+import android.graphics.Color;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.core.view.MarginLayoutParamsCompat;
 import androidx.core.view.ViewCompat;
+
+import java.math.BigDecimal;
 
 final class Utils {
 
@@ -113,6 +116,44 @@ final class Utils {
 
   static boolean isLayoutRtl(View v) {
     return ViewCompat.getLayoutDirection(v) == ViewCompat.LAYOUT_DIRECTION_RTL;
+  }
+
+  static int getCurrentColor(float fraction, int startColor, int endColor){
+    int redCurrent;
+    int blueCurrent;
+    int greenCurrent;
+    int alphaCurrent;
+
+    int redStart = Color.red(startColor);
+    int blueStart = Color.blue(startColor);
+    int greenStart = Color.green(startColor);
+    int alphaStart = Color.alpha(startColor);
+    int redEnd = Color.red(endColor);
+    int blueEnd = Color.blue(endColor);
+    int greenEnd = Color.green(endColor);
+    int alphaEnd = Color.alpha(endColor);
+    int redDifference = redEnd - redStart;
+    int blueDifference = blueEnd - blueStart;
+    int greenDifference = greenEnd - greenStart;
+    int alphaDifference = alphaEnd - alphaStart;
+    redCurrent = (int) (redStart + fraction * redDifference);
+    blueCurrent = (int) (blueStart + fraction * blueDifference);
+    greenCurrent = (int) (greenStart + fraction * greenDifference);
+    alphaCurrent = (int) (alphaStart + fraction * alphaDifference);
+    return Color.argb(alphaCurrent, redCurrent, greenCurrent, blueCurrent);
+  }
+
+  static float getScaleNum(float num){
+
+    return getScaleNum(0, num);
+  }
+
+  static float getScaleNum(int scale, float num){
+    if (scale == 0){
+      return Math.round(num);
+    }
+    BigDecimal bd = new BigDecimal(num);
+    return bd.setScale(scale, BigDecimal.ROUND_HALF_UP).floatValue();
   }
 
   private Utils() { }

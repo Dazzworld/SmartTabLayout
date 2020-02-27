@@ -19,10 +19,12 @@ package com.ogaclejapan.smarttablayout;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -35,6 +37,8 @@ import android.widget.TextView;
 import androidx.core.view.ViewCompat;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
+
+import java.math.BigDecimal;
 
 /**
  * To be used with ViewPager to provide a tab indicator component which give constant feedback as
@@ -77,8 +81,11 @@ public class SmartTabLayout extends HorizontalScrollView {
   private boolean tabViewTextAllCaps;
   private ColorStateList tabViewTextColors;
   private float tabViewTextSize;
+  private float tabViewTextSelectSize;
   private int tabViewTextHorizontalPadding;
   private int tabViewTextMinWidth;
+  private boolean textSizeTransformer;
+  private boolean textColorTransformer;
   private ViewPager viewPager;
   private ViewPager.OnPageChangeListener viewPagerPageChangeListener;
   private OnScrollChangeListener onScrollChangeListener;
@@ -127,6 +134,8 @@ public class SmartTabLayout extends HorizontalScrollView {
         R.styleable.stl_SmartTabLayout_stl_defaultTabTextColor);
     textSize = a.getDimension(
         R.styleable.stl_SmartTabLayout_stl_defaultTabTextSize, textSize);
+    this.tabViewTextSelectSize = a.getDimension(
+            R.styleable.stl_SmartTabLayout_stl_selectTabTextSize, textSize);
     textHorizontalPadding = a.getDimensionPixelSize(
         R.styleable.stl_SmartTabLayout_stl_defaultTabTextHorizontalPadding, textHorizontalPadding);
     textMinWidth = a.getDimensionPixelSize(
@@ -141,6 +150,10 @@ public class SmartTabLayout extends HorizontalScrollView {
         R.styleable.stl_SmartTabLayout_stl_clickable, clickable);
     titleOffset = a.getLayoutDimension(
         R.styleable.stl_SmartTabLayout_stl_titleOffset, titleOffset);
+    textColorTransformer = a.getBoolean(
+            R.styleable.stl_SmartTabLayout_stl_textColorTransformer, false);
+    textSizeTransformer = a.getBoolean(
+            R.styleable.stl_SmartTabLayout_stl_textSizeTransformer, false);
     a.recycle();
 
     this.titleOffset = titleOffset;
@@ -409,7 +422,9 @@ public class SmartTabLayout extends HorizontalScrollView {
       if (i == viewPager.getCurrentItem()) {
         tabView.setSelected(true);
       }
-
+      if (tabView instanceof TextView){
+        ((TextView) tabView).setTextSize(TypedValue.COMPLEX_UNIT_PX, tabView.isSelected() ? tabViewTextSelectSize : tabViewTextSize);
+      }
     }
   }
 
@@ -488,6 +503,27 @@ public class SmartTabLayout extends HorizontalScrollView {
       x += start - startMargin + extraOffset;
     }
 
+
+    if (positionOffset >= 0f && tabIndex < (tabStrip.getChildCount() - 1) && positionOffset <= 1) {
+      View nextTab = tabStrip.getChildAt(tabIndex + 1);
+      if (nextTab instanceof TextView) {
+        if (tabViewTextSelectSize != tabViewTextSize && textSizeTransformer) {
+          float gap = Utils.getScaleNum((tabViewTextSelectSize - tabViewTextSize) * (1f - positionOffset));
+          ((TextView) selectedTab).setTextSize(TypedValue.COMPLEX_UNIT_PX, (tabViewTextSize + gap));
+          ((TextView) nextTab).setTextSize(TypedValue.COMPLEX_UNIT_PX, (tabViewTextSelectSize - gap));
+        }
+        int startColor = tabViewTextColors.getDefaultColor();
+        int endColor = tabViewTextColors.getColorForState(View.SELECTED_STATE_SET, TAB_VIEW_TEXT_COLOR);
+        if (startColor != endColor && textColorTransformer) {
+          float sel = Utils.getScaleNum(2, 1f - positionOffset);
+          float next = Utils.getScaleNum(2, positionOffset);
+          ((TextView) selectedTab)
+                  .setTextColor(Utils.getCurrentColor(sel, startColor, endColor));
+          ((TextView) nextTab)
+                  .setTextColor(Utils.getCurrentColor(next, startColor, endColor));
+        }
+      }
+    }
     scrollTo(x, 0);
 
   }
@@ -623,7 +659,6 @@ public class SmartTabLayout extends HorizontalScrollView {
         tabStrip.onViewPagerPageChanged(position, 0f);
         scrollToTab(position, 0);
       }
-
       for (int i = 0, size = tabStrip.getChildCount(); i < size; i++) {
         tabStrip.getChildAt(i).setSelected(position == i);
       }
